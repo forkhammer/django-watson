@@ -319,7 +319,12 @@ class PostgresSearchBackend(SearchBackend):
 
 
 def escape_mysql_boolean_query(search_text):
-    return '+{word}*'.format(word=escape_query(search_text, RE_MYSQL_ESCAPE_CHARS))
+    return " ".join(
+        '+{word}*'.format(
+            word=word,
+        )
+        for word in escape_query(search_text, RE_MYSQL_ESCAPE_CHARS).split()
+    )
 
 
 class MySQLSearchBackend(SearchBackend):
@@ -353,13 +358,13 @@ class MySQLSearchBackend(SearchBackend):
         cursor.execute("ALTER TABLE watson_searchentry ENGINE = MyISAM")
         # Add the full text indexes.
         cursor.execute("CREATE FULLTEXT INDEX watson_searchentry_fulltext "
-                       "ON watson_searchentry (title, description, content)")
+                       "ON watson_searchentry (title, description, content) WITH PARSER ngram")
         cursor.execute("CREATE FULLTEXT INDEX watson_searchentry_title "
-                       "ON watson_searchentry (title)")
+                       "ON watson_searchentry (title) WITH PARSER ngram")
         cursor.execute("CREATE FULLTEXT INDEX watson_searchentry_description "
-                       "ON watson_searchentry (description)")
+                       "ON watson_searchentry (description) WITH PARSER ngram")
         cursor.execute("CREATE FULLTEXT INDEX watson_searchentry_content "
-                       "ON watson_searchentry (content)")
+                       "ON watson_searchentry (content) WITH PARSER ngram")
 
     def do_uninstall(self):
         """Executes the SQL needed to uninstall django-watson."""
