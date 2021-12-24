@@ -320,7 +320,7 @@ class PostgresSearchBackend(SearchBackend):
 
 def escape_mysql_boolean_query(search_text):
     return " ".join(
-        '+{word}*'.format(
+        '*{word}*'.format(
             word=word,
         )
         for word in escape_query(search_text, RE_MYSQL_ESCAPE_CHARS).split()
